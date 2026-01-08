@@ -16,6 +16,7 @@ using FFXIVClientStructs.FFXIV.Client.Game.Event;
 using FFXIVClientStructs.FFXIV.Client.LayoutEngine;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using Hyperborea.Gui;
+using Hyperborea.Screenshot;
 using Hyperborea.Services;
 using Lumina.Data;
 using Lumina.Excel.Sheets;
@@ -42,8 +43,11 @@ public unsafe class Hyperborea : IDalamudPlugin
     public YamlFactory YamlFactory = new();
     public EditorWindow EditorWindow;
     public CompassWindow CompassWindow;
+    public CameraWindow CameraWindow;
     public ZoneData BuiltInZoneData;
-    public Overlay Overlay;
+    //public Overlay Overlay;
+    public PctOverlay Overlay;
+    public Screenshotter Screenshotter;
     public bool Noclip = false;
     public List<FestivalData> FestivalDatas;
     public List<int> SelectedFestivals = [];
@@ -78,9 +82,9 @@ public unsafe class Hyperborea : IDalamudPlugin
             MapEffect.Init(OnMapEffect);
             EditorWindow = new();
             CompassWindow = new();
+            CameraWindow = new();
             Utils.LoadBuiltInZoneData();
             new EzFrameworkUpdate(Tick);
-            Overlay = new();
             FestivalDatas = EzConfig.DefaultSerializationFactory.Deserialize<List<FestivalData>>(File.ReadAllText(Path.Combine(Svc.PluginInterface.AssemblyLocation.DirectoryName, "festivals.yaml")));
             foreach(var x in Svc.Data.GetExcelSheet<Festival>())
             {
@@ -94,6 +98,9 @@ public unsafe class Hyperborea : IDalamudPlugin
                 }
             }
             SingletonServiceManager.Initialize(typeof(S));
+            Overlay = new();
+            Overlay.OnTerritoryChange();
+            Screenshotter = new();
         });
     }
 
@@ -172,6 +179,8 @@ public unsafe class Hyperborea : IDalamudPlugin
 
     private void OnTerritoryChanged(ushort obj)
     {
+        Overlay.OnTerritoryChange();
+        CameraWindow.OnTerritoryChange(obj);
         /*if (P.Enabled) return;
         TaskManager.Abort();
         TaskManager.Enqueue(() =>
@@ -216,7 +225,7 @@ public unsafe class Hyperborea : IDalamudPlugin
             EzConfig.Save();
         }
         P.Enabled = false;
-        UI.SavedPos = null;
+        SavedPos = null;
         UI.SavedZoneState = null;
     }
 
@@ -244,6 +253,32 @@ public unsafe class Hyperborea : IDalamudPlugin
         }
     }
 
+    public Vector3? SavedPos = null;
+
+    public bool Enable()
+    {
+        if (!Utils.CanEnablePlugin(out var DisableReasons) || Svc.Condition[ConditionFlag.Mounted])
+        {
+            return false;
+        }
+        Enabled = true;
+        SavedPos = Player.Object.Position;
+        Memory.EnableFirewall();
+        Memory.TargetSystem_InteractWithObjectHook.Enable();
+        CameraWindow.IsOpen = true;
+        return true;
+    }
+    
+    public void Disable()
+    {
+        Utils.Revert();
+        SavedPos = null;
+        UI.SavedZoneState = null;
+        Memory.DisableFirewall();
+        Memory.TargetSystem_InteractWithObjectHook.Pause();
+        CameraWindow.IsOpen = false;
+    }
+
     public void ApplyFestivals()
     {
         var festivalArray = stackalloc uint[] { 0, 0, 0, 0 };
@@ -260,9 +295,10 @@ public unsafe class Hyperborea : IDalamudPlugin
 
     public void Dispose()
     {
-        if(Svc.ClientState.IsLoggedIn && Enabled)
+        Overlay.Dispose();
+        if (Svc.ClientState.IsLoggedIn && Enabled)
         {
-            Utils.Revert();
+            Disable();
         }
         ECommonsMain.Dispose();
         P = null;

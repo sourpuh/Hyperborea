@@ -15,6 +15,7 @@ public class PhaseInfo
     public string Name = "";
     public uint Weather = 0;
     public List<MapEffectInfo> MapEffects = [];
+    public Point3? Spawn;
 }
 
 [Serializable]

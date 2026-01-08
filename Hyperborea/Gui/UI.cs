@@ -16,15 +16,15 @@ namespace Hyperborea.Gui;
 public unsafe static class UI
 {
     public static SavedZoneState SavedZoneState = null;
-    public static Vector3? SavedPos = null;
+    //public static Vector3? SavedPos = null;
     public static string MountFilter = "";
-    static int a2 = 0;
+    internal static int a2 = 0;
     static int a3 = 0;
     static int a4 = 0;
     static int a5 = 1;
     internal static int a6 = 1;
-    static Point3 Position = new(0,0,0);
-    static bool SpawnOverride;
+    internal static Point3 Position = new(0,0,0);
+    internal static bool SpawnOverride;
     static int CFCOverride = 0;
 
     public static void DrawNeo()
@@ -62,17 +62,11 @@ public unsafe static class UI
         {
             if (P.Enabled)
             {
-                SavedPos = Player.Object.Position;
-                P.Memory.EnableFirewall();
-                P.Memory.TargetSystem_InteractWithObjectHook.Enable();
+                P.Enable();
             }
             else
             {
-                Utils.Revert();
-                SavedPos = null;
-                SavedZoneState = null;
-                P.Memory.DisableFirewall();
-                P.Memory.TargetSystem_InteractWithObjectHook.Pause();
+                P.Disable();
             }
         }
         if (disableCheckbox)
@@ -217,6 +211,11 @@ public unsafe static class UI
                     ImGui.SetCursorPosX(ImGuiEx.GetWindowContentRegionWidth() - size.X);
                     var disabled = !Utils.CanUse();
                     if (disabled) ImGui.BeginDisabled();
+                    if (ImGuiEx.IconButton(FontAwesomeIcon.Camera))
+                    {
+                        P.CameraWindow.IsOpen = !P.CameraWindow.IsOpen;
+                    }
+                    ImGui.SameLine();
                     if (ImGuiEx.IconButton(FontAwesomeIcon.Compass))
                     {
                         P.CompassWindow.IsOpen = !P.CompassWindow.IsOpen;
@@ -240,17 +239,7 @@ public unsafe static class UI
                     if (disabled) ImGui.BeginDisabled();
                     if (ImGui.Button("Load Zone"))
                     {
-                        Utils.TryGetZoneInfo(Utils.GetLayout((uint)a2), out var info2);
-                        SavedZoneState ??= new SavedZoneState(l->TerritoryTypeId, Player.Object.Position);
-                        Utils.LoadZone((uint)a2, !SpawnOverride, true, a3, a4, a5, a6, CFCOverride);
-                        if (SpawnOverride)
-                        {
-                            Player.GameObject->SetPosition(Position.X, Position.Y, Position.Z);
-                        }
-                        else if (info2 != null && info2.Spawn != null)
-                        {
-                            Player.GameObject->SetPosition(info2.Spawn.X, info2.Spawn.Y, info2.Spawn.Z);
-                        }
+                        Load();
                     }
                     if (disabled) ImGui.EndDisabled();
                 }
@@ -272,6 +261,25 @@ public unsafe static class UI
             ImGuiGroup.EndGroupBox();
         }
     }
+
+    public static void Load()
+    {
+        Svc.Log.Info($"Load {SpawnOverride} {Position}");
+
+        var l = LayoutWorld.Instance()->ActiveLayout;
+        Utils.TryGetZoneInfo(Utils.GetLayout((uint)a2), out var info2);
+        SavedZoneState ??= new SavedZoneState(l->TerritoryTypeId, Player.Object.Position);
+        Utils.LoadZone((uint)a2, !SpawnOverride, true, a3, a4, a5, a6, CFCOverride);
+        if (SpawnOverride)
+        {
+            Player.GameObject->SetPosition(Position.X, Position.Y, Position.Z);
+        }
+        else if (info2 != null && info2.Spawn != null)
+        {
+            Player.GameObject->SetPosition(info2.Spawn.X, info2.Spawn.Y, info2.Spawn.Z);
+        }
+    }
+
     internal static void CoordBlock(string t, ref float p)
     {
         ImGuiEx.TextV(t);

@@ -20,4 +20,90 @@ Data:
       MapEffects: []
     - Name: Golden Bahamut
       Weather: 32
-      MapEffects: []  
+      MapEffects: []
+  ex5/01_xkt_x6/rad/x6r7/level/x6r7:
+    Name: AAC Cruiserweight M3 (Savage)
+    Spawn:
+      X: 100
+      Y: 0
+      Z: 100
+    Phases:
+    - Name: Phase 1
+      Weather: 2
+      MapEffects: []
+    - Name: Phase 2
+      Weather: 2
+      MapEffects: []
+    - Name: Phase 3
+      Weather: 2
+      MapEffects:
+      - a1: 4
+        a2: 1
+        a3: 1
+  ex5/01_xkt_x6/rad/x6r8/level/x6r8:
+    Name: AAC Cruiserweight M4 (Savage)
+    Spawn:
+      X: 100
+      Y: 0
+      Z: 100
+    Phases:
+    - Name: Phase 1
+      Weather: 2
+      MapEffects:
+      - a1: 0
+        a2: 1
+        a3: 1
+    - Name: Phase 2
+      Weather: 105
+      MapEffects:
+      - a1: 2
+        a2: 1
+        a3: 1
+      - a1: 3
+        a2: 1
+        a3: 1
+      - a1: 4
+        a2: 1
+        a3: 1
+      - a1: 5
+        a2: 1
+        a3: 1
+      - a1: 6
+        a2: 1
+        a3: 1
+      - a1: 7
+        a2: 1
+        a3: 1
+      - a1: 8
+        a2: 1
+        a3: 1
+      - a1: 9
+        a2: 1
+        a3: 1
+      - a1: 10
+        a2: 1
+        a3: 1
+      - a1: 11
+        a2: 1
+        a3: 1
+      - a1: 20
+        a2: 1
+        a3: 8
+      - a1: 21
+        a2: 1
+        a3: 1
+      - a1: 22
+        a2: 4
+        a3: 1
+      - a1: 23
+        a2: 4
+        a3: 1
+      - a1: 24
+        a2: 4
+        a3: 1
+      - a1: 25
+        a2: 4
+        a3: 1
+      - a1: 26
+        a2: 4
+        a3: 1

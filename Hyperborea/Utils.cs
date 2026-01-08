@@ -305,9 +305,9 @@ public unsafe static class Utils
     public static void Revert()
     {
         if (Svc.Condition[ConditionFlag.Mounted]) Player.Character->Mount.CreateAndSetupMount(0, 0, 0, 0, 0, 0, 0);
-        if (UI.SavedPos != null)
+        if (P.SavedPos != null)
         {
-            Player.GameObject->SetPosition(UI.SavedPos.Value.X, UI.SavedPos.Value.Y, UI.SavedPos.Value.Z);
+            Player.GameObject->SetPosition(P.SavedPos.Value.X, P.SavedPos.Value.Y, P.SavedPos.Value.Z);
         }
         if (UI.SavedZoneState != null)
         {
